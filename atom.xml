@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://poplar.life/"/>
-  <updated>2018-12-24T06:46:12.273Z</updated>
+  <updated>2018-12-24T10:35:49.510Z</updated>
   <id>http://poplar.life/</id>
   
   <author>
@@ -15,6 +15,28 @@
   </author>
   
   <generator uri="http://hexo.io/">Hexo</generator>
+  
+  <entry>
+    <title>This is a test</title>
+    <link href="http://poplar.life/2018/12/24/test/"/>
+    <id>http://poplar.life/2018/12/24/test/</id>
+    <published>2018-12-24T10:35:49.510Z</published>
+    <updated>2018-12-24T10:35:49.510Z</updated>
+    
+    <content type="html"><![CDATA[<p>Welcome!</p>]]></content>
+    
+    <summary type="html">
+    
+      
+      
+        &lt;p&gt;Welcome!&lt;/p&gt;
+
+      
+    
+    </summary>
+    
+    
+  </entry>
   
   <entry>
     <title>Hello World</title>
