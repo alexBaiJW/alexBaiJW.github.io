@@ -5,9 +5,9 @@
   
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://yoursite.com/"/>
+  <link href="http://poplar.life/"/>
   <updated>2018-12-24T06:46:12.273Z</updated>
-  <id>http://yoursite.com/</id>
+  <id>http://poplar.life/</id>
   
   <author>
     <name>alex Bai</name>
@@ -18,8 +18,8 @@
   
   <entry>
     <title>Hello World</title>
-    <link href="http://yoursite.com/2018/12/24/hello-world/"/>
-    <id>http://yoursite.com/2018/12/24/hello-world/</id>
+    <link href="http://poplar.life/2018/12/24/hello-world/"/>
+    <id>http://poplar.life/2018/12/24/hello-world/</id>
     <published>2018-12-24T06:46:12.272Z</published>
     <updated>2018-12-24T06:46:12.273Z</updated>
     
