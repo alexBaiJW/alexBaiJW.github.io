@@ -6,7 +6,7 @@
   <link href="/atom.xml" rel="self"/>
   
   <link href="http://poplar.life/"/>
-  <updated>2018-12-31T12:57:00.413Z</updated>
+  <updated>2018-12-31T12:59:54.645Z</updated>
   <id>http://poplar.life/</id>
   
   <author>
@@ -21,17 +21,13 @@
     <link href="http://poplar.life/archives/e5f30f60.html"/>
     <id>http://poplar.life/archives/e5f30f60.html</id>
     <published>2018-12-25T12:41:00.000Z</published>
-    <updated>2018-12-31T12:57:00.413Z</updated>
+    <updated>2018-12-31T12:59:54.645Z</updated>
     
-    <content type="html"><![CDATA[<p>This is the third posts. Just test the hexo admin.</p>]]></content>
+    <content type="html"><![CDATA[<p><strong> Third：</strong> <excerpt in="" index="" |="" 首页摘要=""><br>红黑树<br><a id="more"></a></excerpt></p><p><the rest="" of="" contents="" |="" 余下全文=""><br>正文……<br>This is the third posts. Just test the hexo admin.</the></p>]]></content>
     
     <summary type="html">
     
-      
-      
-        &lt;p&gt;This is the third posts. Just test the hexo admin.&lt;/p&gt;
-
-      
+      &lt;p&gt;&lt;strong&gt; Third：&lt;/strong&gt; &lt;excerpt in=&quot;&quot; index=&quot;&quot; |=&quot;&quot; 首页摘要=&quot;&quot;&gt;&lt;br&gt;红黑树&lt;br&gt;
     
     </summary>
     
