@@ -9,18 +9,15 @@
   
   <title>Third | Poplar</title>
   <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
-  <meta name="description" content="Third： original:https://www.ibm.com/developerworks/cn/opensource/os-cn-hadoop-name-node/">
-<meta name="keywords" content="测试，论文">
+  <meta name="keywords" content="测试，论文">
 <meta property="og:type" content="article">
 <meta property="og:title" content="Third">
 <meta property="og:url" content="http://poplar.life/archives/e5f30f60.html">
 <meta property="og:site_name" content="Poplar">
-<meta property="og:description" content="Third： original:https://www.ibm.com/developerworks/cn/opensource/os-cn-hadoop-name-node/">
 <meta property="og:locale" content="default">
-<meta property="og:updated_time" content="2019-01-06T02:45:40.332Z">
+<meta property="og:updated_time" content="2019-01-06T13:56:11.170Z">
 <meta name="twitter:card" content="summary">
 <meta name="twitter:title" content="Third">
-<meta name="twitter:description" content="Third： original:https://www.ibm.com/developerworks/cn/opensource/os-cn-hadoop-name-node/">
   
     <link rel="alternative" href="/atom.xml" title="Poplar" type="application/atom+xml">
   
@@ -176,6 +173,8 @@
                         
                             <li><a href="/categories/algorithm">算法学习</a></li>
                         
+                            <li><a href="/categories/python">Python</a></li>
+                        
                             <li><a href="/about/">关于我</a></li>
                         
                         </ul>
@@ -253,6 +252,8 @@
                 
                     <li><a href="/categories/algorithm">算法学习</a></li>
                 
+                    <li><a href="/categories/python">Python</a></li>
+                
                     <li><a href="/about/">关于我</a></li>
                 
                 <div class="clearfix"></div>
@@ -318,12 +319,7 @@
     <div class="article-entry" itemprop="articleBody">
       
           
-        <p><strong> Third：</strong> <excerpt in="" index="" |="" 首页摘要=""><br>original:<a href="https://www.ibm.com/developerworks/cn/opensource/os-cn-hadoop-name-node/" target="_blank" rel="noopener">https://www.ibm.com/developerworks/cn/opensource/os-cn-hadoop-name-node/</a><br><a id="more"></a></excerpt></p>
-<p><the rest="" of="" contents="" |="" 余下全文=""></the></p>
-<h5 id="NameNode-高可用整体架构概述"><a href="#NameNode-高可用整体架构概述" class="headerlink" title="NameNode 高可用整体架构概述"></a>NameNode 高可用整体架构概述</h5><pre><code>在 Hadoop 1.0 时代，Hadoop 的两大核心组件 HDFS NameNode 和 JobTracker 都存在着单点问题，这其中以 NameNode 的单点问题尤为严重。因为 NameNode 保存了整个 HDFS 的元数据信息，一旦 NameNode 挂掉，整个 HDFS 就无法访问，同时 Hadoop 生态系统中依赖于 HDFS 的各个组件，包括 MapReduce、Hive、Pig 以及 HBase 等也都无法正常工作，并且重新启动 NameNode 和进行数据恢复的过程也会比较耗时。这些问题在给 Hadoop 的使用者带来困扰的同时，也极大地限制了 Hadoop 的使用场景，使得 Hadoop 在很长的时间内仅能用作离线存储和离线计算，无法应用到对可用性和数据一致性要求很高的在线应用场景中。
-
-所幸的是，在 Hadoop2.0 中，HDFS NameNode 和 YARN ResourceManger(JobTracker 在 2.0 中已经被整合到 YARN ResourceManger 之中) 的单点问题都得到了解决，经过多个版本的迭代和发展，目前已经能用于生产环境。HDFS NameNode 和 YARN ResourceManger 的高可用 (High Availability，HA) 方案基本类似，两者也复用了部分代码，但是由于 HDFS NameNode 对于数据存储和数据一致性的要求比 YARN ResourceManger 高得多，所以 HDFS NameNode 的高可用实现更为复杂一些，本文从内部实现的角度对 HDFS NameNode 的高可用机制进行详细的分析。
-</code></pre>
+        
       
     </div>
     
@@ -334,7 +330,7 @@
         <p><span>本文标题:</span><a href="/archives/e5f30f60.html">Third</a></p>
         <p><span>文章作者:</span><a href="/" title="访问 alex Bai 的个人博客">alex Bai</a></p>
         <p><span>发布时间:</span>2018年12月25日 - 20时41分</p>
-        <p><span>最后更新:</span>2019年01月06日 - 10时45分</p>
+        <p><span>最后更新:</span>2019年01月06日 - 21时56分</p>
         <p>
             <span>原始链接:</span><a class="post-url" href="/archives/e5f30f60.html" title="Third">http://poplar.life/archives/e5f30f60.html</a>
             <span class="copy-path" data-clipboard-text="原文: http://poplar.life/archives/e5f30f60.html　　作者: alex Bai" title=""></span>
@@ -366,7 +362,7 @@
 
     <div id="toc" class="toc-article">
     <strong class="toc-title">文章目录</strong>
-    <ol class="toc"><li class="toc-item toc-level-5"><a class="toc-link" href="#NameNode-高可用整体架构概述"><span class="toc-number">1.</span> <span class="toc-text">NameNode 高可用整体架构概述</span></a></li></ol>
+    
 </div>
 <style>
     .left-col .switch-btn {
