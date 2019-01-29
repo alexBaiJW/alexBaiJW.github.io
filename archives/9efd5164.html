@@ -1,0 +1,642 @@
+<!DOCTYPE html>
+<html>
+<head><meta name="generator" content="Hexo 3.8.0">
+  <meta charset="utf-8">
+  <meta name="baidu-site-verification" content="L6Lm9d5Crl">
+  
+  
+  
+  
+  <title>Spark事件监听详解 | Poplar</title>
+  <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1">
+  <meta name="description" content="本文试图解释一下Spark中事件监听的实现原理。">
+<meta name="keywords" content="事件监听">
+<meta property="og:type" content="article">
+<meta property="og:title" content="Spark事件监听详解">
+<meta property="og:url" content="http://poplar.life/archives/9efd5164.html">
+<meta property="og:site_name" content="Poplar">
+<meta property="og:description" content="本文试图解释一下Spark中事件监听的实现原理。">
+<meta property="og:locale" content="default">
+<meta property="og:image" content="http://poplar.life/images/pasted-2.png">
+<meta property="og:updated_time" content="2019-01-29T03:07:23.530Z">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Spark事件监听详解">
+<meta name="twitter:description" content="本文试图解释一下Spark中事件监听的实现原理。">
+<meta name="twitter:image" content="http://poplar.life/images/pasted-2.png">
+  
+    <link rel="alternative" href="/atom.xml" title="Poplar" type="application/atom+xml">
+  
+  
+    <link rel="icon" href="/img/favicon.png">
+  
+  
+  <link rel="stylesheet" href="//cdn.bootcss.com/animate.css/3.5.0/animate.min.css">
+  
+  <link rel="stylesheet" href="/css/style.css">
+  <link rel="stylesheet" href="/font-awesome/css/font-awesome.min.css">
+  <link rel="apple-touch-icon" href="/apple-touch-icon.png">
+  
+  
+      <link rel="stylesheet" href="/fancybox/jquery.fancybox.css">
+  
+  <!-- 加载特效 -->
+    <script src="/js/pace.js"></script>
+    <link href="/css/pace/pace-theme-flash.css" rel="stylesheet">
+  <script>
+      var yiliaConfig = {
+          fancybox: true,
+          animate: true,
+          isHome: false,
+          isPost: true,
+          isArchive: false,
+          isTag: false,
+          isCategory: false,
+          open_in_new: false
+      }
+  </script>
+</head>
+</html>
+<body>
+  <div id="container">
+    <div class="left-col">
+    <div class="overlay"></div>
+<div class="intrude-less">
+    <header id="header" class="inner">
+        
+<script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+
+        <a href="/" class="profilepic">
+            
+            <img lazy-src="/img/alex.png" class="js-avatar">
+            
+        </a>
+        <hgroup>
+          <h1 class="header-author"><a href="/">alex Bai</a></h1>
+        </hgroup>
+        
+        
+            <form>
+                <input type="text" class="st-default-search-input search" id="local-search-input" placeholder="搜索一下" autocomplete="off">
+            </form>
+            <div id="local-search-result"></div>
+        
+        
+            <script type="text/javascript">
+                (function() {
+                    'use strict';
+                    function getMatchData(keyword, data) {
+                        var matchData = [];
+                        for(var i =0;i<data.length;i++){
+                            if(data[i].title.toLowerCase().indexOf(keyword)>=0) 
+                                matchData.push(data[i])
+                        }
+                        return matchData;
+                    }
+                    var $input = $('#local-search-input');
+                    var $resultContent = $('#local-search-result');
+                    $input.keyup(function(){
+                        $.ajax({
+                            url: '/search.json',
+                            dataType: "json",
+                            success: function( json ) {
+                                var str='<ul class=\"search-result-list\">';                
+                                var keyword = $input.val().trim().toLowerCase();
+                                $resultContent.innerHTML = "";
+                                if ($input.val().trim().length <= 0) {
+                                    $resultContent.empty();
+                                    $('#switch-area').show();
+                                    return;
+                                }
+                                var results = getMatchData(keyword, json);
+                                if(results.length === 0){
+                                    $resultContent.empty();
+                                    $('#switch-area').show();
+                                    return;
+                                } 
+                                for(var i =0; i<results.length; i++){
+                                    str += "<li><a href='"+ results[i].url +"' class='search-result-title'>"+ results[i].title +"</a></li>";
+                                }
+                                str += "</ul>";
+                                $resultContent.empty();
+                                $resultContent.append(str);
+                                $('#switch-area').hide();
+                            }
+                        });
+                    });
+                })();
+            </script>
+        
+        
+            <div id="switch-btn" class="switch-btn">
+                <div class="icon">
+                    <div class="icon-ctn">
+                        <div class="icon-wrap icon-house" data-idx="0">
+                            <div class="birdhouse"></div>
+                            <div class="birdhouse_holes"></div>
+                        </div>
+                        <div class="icon-wrap icon-ribbon hide" data-idx="1">
+                            <div class="ribbon"></div>
+                        </div>
+                        
+                        <div class="icon-wrap icon-link hide" data-idx="2">
+                            <div class="loopback_l"></div>
+                            <div class="loopback_r"></div>
+                        </div>
+                        
+                        
+                        <div class="icon-wrap icon-me hide" data-idx="3">
+                            <div class="user"></div>
+                            <div class="shoulder"></div>
+                        </div>
+                        
+                    </div>
+                </div>
+                <div class="tips-box hide">
+                    <div class="tips-arrow"></div>
+                    <ul class="tips-inner">
+                        <li>菜单</li>
+                        <li>标签</li>
+                        
+                        <li>友情链接</li>
+                        
+                        
+                        <li>关于我</li>
+                        
+                    </ul>
+                </div>
+            </div>
+        
+        <div id="switch-area" class="switch-area">
+            <div class="switch-wrap">
+                <section class="switch-part switch-part1">
+                    <nav class="header-menu">
+                        <ul>
+                        
+                            <li><a href="/archives/">所有文章</a></li>
+                        
+                            <li><a href="/categories/bigdata/">大数据</a></li>
+                        
+                            <li><a href="/categories/algorithm">算法学习</a></li>
+                        
+                            <li><a href="/categories/python">Python</a></li>
+                        
+                            <li><a href="/about/">关于我</a></li>
+                        
+                        </ul>
+                    </nav>
+                    <nav class="header-nav">
+                        <ul class="social">
+                            
+                                <a class="fl github" target="_blank" href="https://github.com/alexBaiJW" title="github">github</a>
+                            
+                                <a class="fl weibo" target="_blank" href="https://weibo.com/u/6237443455" title="weibo">weibo</a>
+                            
+                                <a class="fl rss" target="_blank" href="/atom.xml" title="rss">rss</a>
+                            
+                                <a class="fl mail" target="_blank" href="mailto:alexbaijw@gmail.com" title="mail">mail</a>
+                            
+                        </ul>
+                    </nav>
+                </section>
+                
+                <section class="switch-part switch-part2">
+                    <div class="widget tagcloud" id="js-tagcloud">
+                        <a href="/tags/JAX-RS/" style="font-size: 10px;">JAX-RS</a> <a href="/tags/事件监听/" style="font-size: 10px;">事件监听</a> <a href="/tags/多线程/" style="font-size: 10px;">多线程</a> <a href="/tags/线程池/" style="font-size: 10px;">线程池</a>
+                    </div>
+                </section>
+                
+                
+                <section class="switch-part switch-part3">
+                    <div id="js-friends">
+                    
+                      <a target="_blank" class="main-nav-link switch-friends-link" href="http://blog.csdn.net/">csdn</a>
+                    
+                      <a target="_blank" class="main-nav-link switch-friends-link" href="https://segmentfault.com/">segmentfault</a>
+                    
+                      <a target="_blank" class="main-nav-link switch-friends-link" href="http://www.jianshu.com/">简书</a>
+                    
+                    </div>
+                </section>
+                
+                
+                
+                <section class="switch-part switch-part4">
+                
+                    <div id="js-aboutme">技术宅一枚!</div>
+                </section>
+                
+            </div>
+        </div>
+    </header>
+</div>
+
+    </div>
+    <div class="mid-col">
+      <nav id="mobile-nav">
+      <div class="overlay">
+          <div class="slider-trigger"></div>
+          <h1 class="header-author js-mobile-header hide"><a href="/" title="回到主页">alex Bai</a></h1>
+      </div>
+    <div class="intrude-less">
+        <header id="header" class="inner">
+            <a href="/" class="profilepic">
+                
+                    <img lazy-src="/img/alex.png" class="js-avatar">
+                
+            </a>
+            <hgroup>
+              <h1 class="header-author"><a href="/" title="回到主页">alex Bai</a></h1>
+            </hgroup>
+            
+            <nav class="header-menu">
+                <ul>
+                
+                    <li><a href="/archives/">所有文章</a></li>
+                
+                    <li><a href="/categories/bigdata/">大数据</a></li>
+                
+                    <li><a href="/categories/algorithm">算法学习</a></li>
+                
+                    <li><a href="/categories/python">Python</a></li>
+                
+                    <li><a href="/about/">关于我</a></li>
+                
+                <div class="clearfix"></div>
+                </ul>
+            </nav>
+            <nav class="header-nav">
+                <div class="social">
+                    
+                        <a class="github" target="_blank" href="https://github.com/alexBaiJW" title="github">github</a>
+                    
+                        <a class="weibo" target="_blank" href="https://weibo.com/u/6237443455" title="weibo">weibo</a>
+                    
+                        <a class="rss" target="_blank" href="/atom.xml" title="rss">rss</a>
+                    
+                        <a class="mail" target="_blank" href="mailto:alexbaijw@gmail.com" title="mail">mail</a>
+                    
+                </div>
+            </nav>
+        </header>
+    </div>
+</nav>
+      <div class="body-wrap"><article id="post-Spark事件监听详解" class="article article-type-post" itemscope="" itemprop="blogPost">
+  
+    <div class="article-meta">
+      <a href="/archives/9efd5164.html" class="article-date">
+      <time datetime="2019-01-29T02:19:00.000Z" itemprop="datePublished">2019-01-29</time>
+</a>
+
+    </div>
+  
+  <div class="article-inner">
+    
+      <input type="hidden" class="isFancy">
+    
+    
+      <header class="article-header">
+        
+  
+    <h1 class="article-title" itemprop="name">
+      Spark事件监听详解
+    </h1>
+  
+
+
+      </header>
+      
+      <div class="article-info article-info-post">
+        
+    <div class="article-category tagcloud">
+    <a class="article-category-link" href="/categories/Spark/">Spark</a>
+    </div>
+
+
+        
+    <div class="article-tag tagcloud">
+        <ul class="article-tag-list"><li class="article-tag-list-item"><a class="article-tag-list-link" href="/tags/事件监听/">事件监听</a></li></ul>
+    </div>
+
+        <div class="clearfix"></div>
+      </div>
+      
+    
+    <div class="article-entry" itemprop="articleBody">
+      
+          
+        <p><excerpt in="" index="" |="" 首页摘要=""><br>本文试图解释一下Spark中事件监听的实现原理。<br><a id="more"></a></excerpt></p>
+<the rest="" of="" contents="" |="" 余下全文="">
+
+<h3 id="概述"><a href="#概述" class="headerlink" title="概述"></a>概述</h3><p>Spark中很多组件间都是靠事件消息实现通信，RPC和事件消息机制的目的都是实现组件之间的通信，前者解决远程通信问题，而后者则是在本地较为高效的通信方式。Spark中大量采用事件监听这种方式，实现driver端组件间的通信。本文试图解释一下Spark中事件监听的实现原理。</p>
+<h3 id="观察者模式"><a href="#观察者模式" class="headerlink" title="观察者模式"></a>观察者模式</h3><p>观察者模式(Observer Pattern)：定义对象间的一种一对多依赖关系，使得每当一个对象状态发生改变时，其相关依赖对象皆得到通知并被自动更新。其中发生改变的对象称为主题，被通知对象称之为观察者，一个主题可以有多个观察者，而观察者之间保持相对独立，可以根据需要增加和删除观察者，使得系统更易于扩展。</p>
+<p><img src="/images/pasted-2.png" alt="upload successful"></p>
+<h3 id="Spark中的事件监听"><a href="#Spark中的事件监听" class="headerlink" title="Spark中的事件监听"></a>Spark中的事件监听</h3><h4 id="SparkListener"><a href="#SparkListener" class="headerlink" title="SparkListener"></a>SparkListener</h4><p>Spark中的事件监听机制，其本质上就是观察者模式的实现。下面就以SparkListener为例来解析事件监听是如何设计的。首先我们看SparkListener</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">abstract</span> <span class="class"><span class="keyword">class</span> <span class="title">SparkListener</span> <span class="keyword">extends</span> <span class="title">SparkListenerInterface</span> </span>&#123;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">onExecutorAdded</span></span>(executorAdded:<span class="type">SparkListenerExecutorAdded</span>):<span class="type">Unit</span> = &#123; &#125;</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">onExecutorRemoved</span></span>(executorRemoved:<span class="type">SparkListenerExecutorRemoved</span>): <span class="type">Unit</span> = &#123; &#125;</span><br><span class="line">  </span><br><span class="line">  <span class="comment">//略...</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>为了简化分析，我们以executor的增删事件监听来做具体的分析。这里我们可以看到onExecutorAdded和onExecutorRemoved两个方法，很明显这是用来处理executor增删事件的方法。SparkListener继承自SparkListenerInterface接口，其内部就是这些方法的声明，代码省略。</p>
+<h4 id="监听器的结构"><a href="#监听器的结构" class="headerlink" title="监听器的结构"></a>监听器的结构</h4><p>很明显，要使得类的对象能够实现对executor事件的响应，就必须继承SparkListener。举例来讲，我们可以看到SaveExecutorInfo（org.apache.spark.deploy.SaveExecutorInfo）继承自SparkListener。<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span>[spark] <span class="class"><span class="keyword">class</span> <span class="title">SaveExecutorInfo</span> <span class="keyword">extends</span> <span class="title">SparkListener</span> </span>&#123;</span><br><span class="line">  <span class="keyword">val</span> addedExecutorInfos = mutable.<span class="type">Map</span>[<span class="type">String</span>, <span class="type">ExecutorInfo</span>]()</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">onExecutorAdded</span></span>(executor: <span class="type">SparkListenerExecutorAdded</span>) &#123;</span><br><span class="line">    addedExecutorInfos(executor.executorId) = executor.executorInfo</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>其重载了onExecutorAdded方法，收集executor的信息。</p>
+<h4 id="监听器如何使用"><a href="#监听器如何使用" class="headerlink" title="监听器如何使用"></a>监听器如何使用</h4><p>SaveExecutorInfo是如何能够简单地通过继承自一个SparkListener类，甚至没有任何消息接受和处理逻辑，来实现事件响应呢？还是举例说明，我们可以看一下如何使用SaveExecutorInfo对象的。<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br></pre></td><td class="code"><pre><span class="line"><span class="class"><span class="keyword">class</span> <span class="title">LogUrlsStandaloneSuite</span> <span class="keyword">extends</span> <span class="title">SparkFunSuite</span> <span class="keyword">with</span> <span class="title">LocalSparkContext</span> </span>&#123;</span><br><span class="line">    <span class="comment">//部分代码省略</span></span><br><span class="line">    <span class="keyword">val</span> listener = <span class="keyword">new</span> <span class="type">SaveExecutorInfo</span></span><br><span class="line">    sc.addSparkListener(listener) <span class="comment">//将一个SaveExecutorInfo监听器对象添加到sc中</span></span><br><span class="line">    <span class="comment">// Trigger a job so that executors get added</span></span><br><span class="line">    sc.parallelize(<span class="number">1</span> to <span class="number">100</span>, <span class="number">4</span>).map(_.toString).count()</span><br><span class="line">    sc.listenerBus.waitUntilEmpty(<span class="type">WAIT_TIMEOUT_MILLIS</span>)</span><br><span class="line">    listener.addedExecutorInfos.values.foreach &#123; info =&gt;</span><br><span class="line">      assert(info.logUrlMap.nonEmpty)</span><br><span class="line">      <span class="comment">// Browse to each URL to check that it's valid</span></span><br><span class="line">      info.logUrlMap.foreach &#123; <span class="keyword">case</span> (logType, logUrl) =&gt;</span><br><span class="line">        <span class="keyword">val</span> html = <span class="type">Source</span>.fromURL(logUrl).mkString</span><br><span class="line">        assert(html.contains(<span class="string">s"<span class="subst">$logType</span> log page"</span>))</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">    <span class="comment">//部分代码省略</span></span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<h4 id="监听器如何工作"><a href="#监听器如何工作" class="headerlink" title="监听器如何工作"></a>监听器如何工作</h4><p>这里可以看到，在声明了一个SaveExecutorInfo对象之后，需要将它添加到sc中，sc其实就是SparkContext对象，也就是一个Spark application唯一的入口。SparkContext中addSparkListener方法的代码如下：<br><figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="comment">/**</span></span><br><span class="line"><span class="comment"> * :: DeveloperApi ::</span></span><br><span class="line"><span class="comment"> * Register a listener to receive up-calls from events that happen during execution.</span></span><br><span class="line"><span class="comment"> */</span></span><br><span class="line"><span class="meta">@DeveloperApi</span></span><br><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">addSparkListener</span></span>(listener: <span class="type">SparkListenerInterface</span>) &#123;</span><br><span class="line">  listenerBus.addListener(listener)</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure></p>
+<p>这里的listenerBus，是一个监听器总线对象，其声明如下：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span>[spark] <span class="keyword">val</span> listenerBus = <span class="keyword">new</span> <span class="type">LiveListenerBus</span></span><br></pre></td></tr></table></figure>
+<p>现在思路就变得很清晰了，SaveExecutorInfo对象是注册到LiveListenerBus对象中，然后通过LiveListenerBus对象来实现事件监听，其实这里我们通过取名就可以知道其设计思路，类似于计算机中的总线，设备都通过总线来传递消息，而LiveListenerBus就刚好充当了总线的角色，一个个SparkListener子类对象就是一个个的设备，它们可以接受来自总线的消息并作出相应的处理。</p>
+<h4 id="监听器总线如何传递消息"><a href="#监听器总线如何传递消息" class="headerlink" title="监听器总线如何传递消息"></a>监听器总线如何传递消息</h4><p>我们可以看一下LiveListenerBus类，该类实现了SparkListenerBus接口，直接看其入口start方法：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">start</span></span>(sc: <span class="type">SparkContext</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">  <span class="keyword">if</span> (started.compareAndSet(<span class="literal">false</span>, <span class="literal">true</span>)) &#123;</span><br><span class="line">    sparkContext = sc</span><br><span class="line">    listenerThread.start()</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">IllegalStateException</span>(<span class="string">s"<span class="subst">$name</span> already started!"</span>)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>直接启动了一个listenerThread：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br><span class="line">16</span><br><span class="line">17</span><br><span class="line">18</span><br><span class="line">19</span><br><span class="line">20</span><br><span class="line">21</span><br><span class="line">22</span><br><span class="line">23</span><br><span class="line">24</span><br><span class="line">25</span><br><span class="line">26</span><br><span class="line">27</span><br><span class="line">28</span><br><span class="line">29</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span> <span class="keyword">val</span> listenerThread = <span class="keyword">new</span> <span class="type">Thread</span>(name) &#123;</span><br><span class="line">  setDaemon(<span class="literal">true</span>)</span><br><span class="line">  <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">run</span></span>(): <span class="type">Unit</span> = <span class="type">Utils</span>.tryOrStopSparkContext(sparkContext) &#123;</span><br><span class="line">    <span class="type">LiveListenerBus</span>.withinListenerThread.withValue(<span class="literal">true</span>) &#123;</span><br><span class="line">      <span class="keyword">while</span> (<span class="literal">true</span>) &#123;</span><br><span class="line">        eventLock.acquire()</span><br><span class="line">        self.synchronized &#123;</span><br><span class="line">          processingEvent = <span class="literal">true</span></span><br><span class="line">        &#125;</span><br><span class="line">        <span class="keyword">try</span> &#123;</span><br><span class="line">          <span class="keyword">val</span> event = eventQueue.poll</span><br><span class="line">          <span class="keyword">if</span> (event == <span class="literal">null</span>) &#123;</span><br><span class="line">            <span class="comment">// Get out of the while loop and shutdown the daemon thread</span></span><br><span class="line">            <span class="keyword">if</span> (!stopped.get) &#123;</span><br><span class="line">              <span class="keyword">throw</span> <span class="keyword">new</span> <span class="type">IllegalStateException</span>(<span class="string">"Polling `null` from eventQueue means"</span> +</span><br><span class="line">                <span class="string">" the listener bus has been stopped. So `stopped` must be true"</span>)</span><br><span class="line">            &#125;</span><br><span class="line">            <span class="keyword">return</span></span><br><span class="line">          &#125;</span><br><span class="line">          postToAll(event)<span class="comment">//将事件通知到所有注册的listener中</span></span><br><span class="line">        &#125; <span class="keyword">finally</span> &#123;</span><br><span class="line">          self.synchronized &#123;</span><br><span class="line">            processingEvent = <span class="literal">false</span></span><br><span class="line">          &#125;</span><br><span class="line">        &#125;</span><br><span class="line">      &#125;</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>可以看到这个listenerThread是一个守护线程，其核心逻辑就是不停地在一个事件队列eventQueue里取出事件，如果事件合法且LiverListenerBus没有被关停，就将事件通知给所有注册的listener中，postToAll方法在ListenerBus接口中实现：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">final</span> <span class="function"><span class="keyword">def</span> <span class="title">postToAll</span></span>(event: <span class="type">E</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">  <span class="comment">// JavaConverters can create a JIterableWrapper if we use asScala.</span></span><br><span class="line">  <span class="comment">// However, this method will be called frequently. To avoid the wrapper cost, here we use</span></span><br><span class="line">  <span class="comment">// Java Iterator directly.</span></span><br><span class="line">  <span class="keyword">val</span> iter = listeners.iterator</span><br><span class="line">  <span class="keyword">while</span> (iter.hasNext) &#123;</span><br><span class="line">    <span class="keyword">val</span> listener = iter.next()</span><br><span class="line">    <span class="keyword">try</span> &#123;</span><br><span class="line">      doPostEvent(listener, event)</span><br><span class="line">    &#125; <span class="keyword">catch</span> &#123;</span><br><span class="line">      <span class="keyword">case</span> <span class="type">NonFatal</span>(e) =&gt;</span><br><span class="line">        logError(<span class="string">s"Listener <span class="subst">$&#123;Utils.getFormattedClassName(listener)&#125;</span> threw an exception"</span>, e)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>思路很清晰，就是用迭代器遍历listener，逐个将消息发送。而doPostEvent方法是一个抽象方法，其具体实现要由继承自ListerBus的类负责，比如之前举例中的SparkListener，就有相应的SparkListenerBus接口：</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br><span class="line">14</span><br><span class="line">15</span><br></pre></td><td class="code"><pre><span class="line"><span class="keyword">private</span>[spark] <span class="class"><span class="keyword">trait</span> <span class="title">SparkListenerBus</span></span></span><br><span class="line"><span class="class">  <span class="keyword">extends</span> <span class="title">ListenerBus</span>[<span class="type">SparkListenerInterface</span>, <span class="type">SparkListenerEvent</span>] </span>&#123;</span><br><span class="line">  <span class="keyword">protected</span> <span class="keyword">override</span> <span class="function"><span class="keyword">def</span> <span class="title">doPostEvent</span></span>(</span><br><span class="line">      listener: <span class="type">SparkListenerInterface</span>,</span><br><span class="line">      event: <span class="type">SparkListenerEvent</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">    event <span class="keyword">match</span> &#123;</span><br><span class="line">    	<span class="comment">//部分代码省略</span></span><br><span class="line">      <span class="keyword">case</span> executorAdded: <span class="type">SparkListenerExecutorAdded</span> =&gt;</span><br><span class="line">        listener.onExecutorAdded(executorAdded)</span><br><span class="line">      <span class="keyword">case</span> executorRemoved: <span class="type">SparkListenerExecutorRemoved</span> =&gt;</span><br><span class="line">        listener.onExecutorRemoved(executorRemoved)</span><br><span class="line">        <span class="comment">//部分代码省略</span></span><br><span class="line">      <span class="keyword">case</span> _ =&gt; listener.onOtherEvent(event)</span><br><span class="line">    &#125;</span><br><span class="line">  &#125;</span><br></pre></td></tr></table></figure>
+<p>这里对每个事件进行类型匹配，比如doPostEvent需要将executorAdded事件告知一个listener，对应地，这个listener就调用一下自己的onExecutorAdded方法，对该事件作出自己的反应，比如前面的SaveExecutorInfo就实现了onExecutorAdded方法，其内容就是保存一下executor的信息。到这里其实还有一个重要的问题被忽视，LiveListenerBus发给注册在它这里的listener的事件消息是从何而来的？细心一点就可以发现，LiveListenerBus中有一个post方法:</p>
+<figure class="highlight scala"><table><tr><td class="gutter"><pre><span class="line">1</span><br><span class="line">2</span><br><span class="line">3</span><br><span class="line">4</span><br><span class="line">5</span><br><span class="line">6</span><br><span class="line">7</span><br><span class="line">8</span><br><span class="line">9</span><br><span class="line">10</span><br><span class="line">11</span><br><span class="line">12</span><br><span class="line">13</span><br></pre></td><td class="code"><pre><span class="line"><span class="function"><span class="keyword">def</span> <span class="title">post</span></span>(event: <span class="type">SparkListenerEvent</span>): <span class="type">Unit</span> = &#123;</span><br><span class="line">  <span class="keyword">if</span> (stopped.get) &#123;</span><br><span class="line">    <span class="comment">// Drop further events to make `listenerThread` exit ASAP</span></span><br><span class="line">    logError(<span class="string">s"<span class="subst">$name</span> has already stopped! Dropping event <span class="subst">$event</span>"</span>)</span><br><span class="line">    <span class="keyword">return</span></span><br><span class="line">  &#125;</span><br><span class="line">  <span class="keyword">val</span> eventAdded = eventQueue.offer(event)</span><br><span class="line">  <span class="keyword">if</span> (eventAdded) &#123;</span><br><span class="line">    eventLock.release()</span><br><span class="line">  &#125; <span class="keyword">else</span> &#123;</span><br><span class="line">    onDropEvent(event)</span><br><span class="line">  &#125;</span><br><span class="line">&#125;</span><br></pre></td></tr></table></figure>
+<p>其核心就是向事件队列里添加相应的事件。</p>
+<h3 id="小结"><a href="#小结" class="headerlink" title="小结"></a>小结</h3><p>总结之，Spark中监听器的实现核心其实就是一个个需要对事件响应的监听器对象，注册到一个监听器总线，需要发送事件消息的组件将发生的事件消息提交到总线，然后总线将事件消息转发给一个个注册在它上面的监听器，最后监听器对事件进行响应。其实就是一个典型的观察者模式使用。</p>
+<p>原文链接(有改动)：<a href="https://wongxingjun.github.io/2017/01/01/Spark%E4%BA%8B%E4%BB%B6%E7%9B%91%E5%90%AC%E8%AF%A6%E8%A7%A3/" target="_blank" rel="noopener">Spark事件监听详解</a></p>
+</the>
+      
+    </div>
+    
+  </div>
+  
+    
+    <div class="copyright">
+        <p><span>本文标题:</span><a href="/archives/9efd5164.html">Spark事件监听详解</a></p>
+        <p><span>文章作者:</span><a href="/" title="访问 alex Bai 的个人博客">alex Bai</a></p>
+        <p><span>发布时间:</span>2019年01月29日 - 10时19分</p>
+        <p><span>最后更新:</span>2019年01月29日 - 11时07分</p>
+        <p>
+            <span>原始链接:</span><a class="post-url" href="/archives/9efd5164.html" title="Spark事件监听详解">http://poplar.life/archives/9efd5164.html</a>
+            <span class="copy-path" data-clipboard-text="原文: http://poplar.life/archives/9efd5164.html　　作者: alex Bai" title=""></span>
+        </p>
+        <p>
+            <span>许可协议:</span><i class="fa fa-creative-commons"></i> <a rel="license" href="http://creativecommons.org/licenses/by-nc-sa/3.0/cn/" title="中国大陆 (CC BY-NC-SA 3.0 CN)" target="_blank">"署名-非商用-相同方式共享 3.0"</a> 转载请保留原文链接及作者。
+        </p>
+    </div>
+
+
+
+<nav id="article-nav">
+  
+  
+    <a href="/archives/c07a9f32.html" id="article-nav-older" class="article-nav-link-wrap">
+      <div class="article-nav-title">Python线程池模拟实现</div>
+      <strong class="article-nav-caption">></strong>
+    </a>
+  
+</nav>
+
+
+  
+</article>
+
+    <div id="toc" class="toc-article">
+    <strong class="toc-title">文章目录</strong>
+    <ol class="toc"><li class="toc-item toc-level-3"><a class="toc-link" href="#概述"><span class="toc-number">1.</span> <span class="toc-text">概述</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#观察者模式"><span class="toc-number">2.</span> <span class="toc-text">观察者模式</span></a></li><li class="toc-item toc-level-3"><a class="toc-link" href="#Spark中的事件监听"><span class="toc-number">3.</span> <span class="toc-text">Spark中的事件监听</span></a><ol class="toc-child"><li class="toc-item toc-level-4"><a class="toc-link" href="#SparkListener"><span class="toc-number">3.1.</span> <span class="toc-text">SparkListener</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#监听器的结构"><span class="toc-number">3.2.</span> <span class="toc-text">监听器的结构</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#监听器如何使用"><span class="toc-number">3.3.</span> <span class="toc-text">监听器如何使用</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#监听器如何工作"><span class="toc-number">3.4.</span> <span class="toc-text">监听器如何工作</span></a></li><li class="toc-item toc-level-4"><a class="toc-link" href="#监听器总线如何传递消息"><span class="toc-number">3.5.</span> <span class="toc-text">监听器总线如何传递消息</span></a></li></ol></li><li class="toc-item toc-level-3"><a class="toc-link" href="#小结"><span class="toc-number">4.</span> <span class="toc-text">小结</span></a></li></ol>
+</div>
+<style>
+    .left-col .switch-btn {
+        display: none;
+    }
+    .left-col .switch-area {
+        display: none;
+    }
+</style>
+<input type="button" id="tocButton" value="隐藏目录" title="点击按钮隐藏或者显示文章目录">
+
+<script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+
+<script>
+    var valueHide = "隐藏目录";
+    var valueShow = "显示目录";
+    if ($(".left-col").is(":hidden")) {
+        $("#tocButton").attr("value", valueShow);
+    }
+    $("#tocButton").click(function() {
+        if ($("#toc").is(":hidden")) {
+            $("#tocButton").attr("value", valueHide);
+            $("#toc").slideDown(320);
+            $(".switch-btn, .switch-area").fadeOut(300);
+        }
+        else {
+            $("#tocButton").attr("value", valueShow);
+            $("#toc").slideUp(350);
+            $(".switch-btn, .switch-area").fadeIn(500);
+        }
+    })
+    if ($(".toc").length < 1) {
+        $("#toc, #tocButton").hide();
+        $(".switch-btn, .switch-area").show();
+    }
+</script>
+
+
+
+
+<div class="bdsharebuttonbox">
+	<a href="#" class="fx fa-weibo bds_tsina" data-cmd="tsina" title="分享到新浪微博"></a>
+	<a href="#" class="fx fa-weixin bds_weixin" data-cmd="weixin" title="分享到微信"></a>
+	<a href="#" class="fx fa-qq bds_sqq" data-cmd="sqq" title="分享到QQ好友"></a>
+	<a href="#" class="fx fa-facebook-official bds_fbook" data-cmd="fbook" title="分享到Facebook"></a>
+	<a href="#" class="fx fa-twitter bds_twi" data-cmd="twi" title="分享到Twitter"></a>
+	<a href="#" class="fx fa-linkedin bds_linkedin" data-cmd="linkedin" title="分享到linkedin"></a>
+	<a href="#" class="fx fa-files-o bds_copy" data-cmd="copy" title="分享到复制网址"></a>
+</div>
+<script>window._bd_share_config={"common":{"bdSnsKey":{},"bdText":"","bdMini":"2","bdMiniList":false,"bdPic":"","bdStyle":"2","bdSize":"24"},"share":{}};with(document)0[(getElementsByTagName('head')[0]||body).appendChild(createElement('script')).src='http://bdimg.share.baidu.com/static/api/js/share.js?v=89860593.js?cdnversion='+~(-new Date()/36e5)];</script>
+
+
+
+
+    
+        
+
+    
+
+
+
+    <div class="scroll" id="post-nav-button">
+        
+            <a href="/" title="回到主页"><i class="fa fa-home"></i></a>
+        
+        <a title="文章列表"><i class="fa fa-bars"></i><i class="fa fa-times"></i></a>
+        
+            <a href="/archives/c07a9f32.html" title="下一篇: Python线程池模拟实现">
+                <i class="fa fa-angle-right"></i>
+            </a>
+        
+    </div>
+    <ul class="post-list"><li class="post-list-item"><a class="post-list-link" href="/archives/9efd5164.html">Spark事件监听详解</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/c07a9f32.html">Python线程池模拟实现</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/4a17b156.html">Python多线程示例</a></li><li class="post-list-item"><a class="post-list-link" href="/archives/e5f30f60.html">JAX-RS 简化 REST 应用开发</a></li></ul>
+    
+<script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+
+    <script>
+        $(".post-list").addClass("toc-article");
+        // $(".post-list-item a").attr("target","_blank");
+        $("#post-nav-button > a:nth-child(2)").click(function() {
+            $(".fa-bars, .fa-times").toggle();
+            $(".post-list").toggle(300);
+            if ($(".toc").length > 0) {
+                $("#toc, #tocButton").toggle(200, function() {
+                    if ($(".switch-area").is(":visible")) {
+                        $("#toc, .switch-btn, .switch-area").toggle();
+                        $("#tocButton").attr("value", valueHide);
+                        }
+                    })
+            }
+            else {
+                $(".switch-btn, .switch-area").fadeToggle(300);
+            }
+        })
+    </script>
+
+
+
+
+    <script>
+        
+    </script>
+
+</div>
+      <footer id="footer">
+    <div class="outer">
+        <div id="footer-info">
+            <div class="footer-left">
+                &copy; 2019 alex Bai
+            </div>
+            <div class="footer-right">
+                <a href="http://hexo.io/" target="_blank">Hexo &nbsp;&nbsp;</a><a href="https://github.com/maochunguang" target="_blank">Blog</a> by tommy
+            </div>
+        </div>
+        
+            <div class="visit">
+                
+                    <span id="busuanzi_container_site_pv" style="display:none">
+                        <span id="site-visit">极客到访数: 
+                            <span id="busuanzi_value_site_uv"></span>
+                        </span>
+                    </span>
+                
+                
+                    <span>, </span>
+                
+                
+                    <span id="busuanzi_container_page_pv" style="display:none">
+                        <span id="page-visit">文章阅读量: 
+                            <span id="busuanzi_value_page_pv"></span>
+                        </span>
+                    </span>
+                
+            </div>
+        
+    </div>
+</footer>
+
+    </div>
+    
+<script src="https://7.url.cn/edu/jslib/comb/require-2.1.6,jquery-1.9.1.min.js"></script>
+
+<script src="/js/main.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            var backgroundnum = 1;
+            var backgroundimg = "url(/background/bg-x.jpg)".replace(/x/gi, Math.ceil(Math.random() * backgroundnum));
+            $("#mobile-nav").css({"background-image": backgroundimg,"background-size": "cover","background-position": "center"});
+            $(".left-col").css({"background-image": backgroundimg,"background-size": "cover","background-position": "center"});
+        })
+    </script>
+
+
+<!-- Google Analytics -->
+<script type="text/javascript">
+(function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+(i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+})(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+ga('create', 'xxxxx', 'auto');
+ga('send', 'pageview');
+
+</script>
+<!-- End Google Analytics -->
+
+
+
+	<script>
+	var _hmt = _hmt || [];
+	(function() {
+	  var hm = document.createElement("script");
+	  hm.src = "//hm.baidu.com/hm.js?xxxxxx";
+	  var s = document.getElementsByTagName("script")[0]; 
+	  s.parentNode.insertBefore(hm, s);
+	})();
+	</script>
+
+
+
+<script type="text/x-mathjax-config">
+MathJax.Hub.Config({
+    tex2jax: {
+        inlineMath: [ ['$','$'], ["\\(","\\)"]  ],
+        processEscapes: true,
+        skipTags: ['script', 'noscript', 'style', 'textarea', 'pre', 'code']
+    }
+});
+
+MathJax.Hub.Queue(function() {
+    var all = MathJax.Hub.getAllJax(), i;
+    for(i=0; i < all.length; i += 1) {
+        all[i].SourceElement().parentNode.className += ' has-jax';                 
+    }       
+});
+</script>
+
+<script type="text/javascript" src="http://cdn.mathjax.org/mathjax/latest/MathJax.js?config=TeX-AMS-MML_HTMLorMML">
+</script>
+
+
+<div class="scroll" id="scroll">
+    <a href="#"><i class="fa fa-arrow-up"></i></a>
+    <a href="#comments"><i class="fa fa-comments-o"></i></a>
+    <a href="#footer"><i class="fa fa-arrow-down"></i></a>
+</div>
+<script>
+    $(document).ready(function() {
+        if ($("#comments").length < 1) {
+            $("#scroll > a:nth-child(2)").hide();
+        };
+    })
+</script>
+
+<script async src="https://busuanzi.ibruce.info/busuanzi/2.3/busuanzi.pure.mini.js">
+</script>
+
+  <script language="javascript">
+    $(function() {
+        $("a[title]").each(function() {
+            var a = $(this);
+            var title = a.attr('title');
+            if (title == undefined || title == "") return;
+            a.data('title', title).removeAttr('title').hover(
+            function() {
+                var offset = a.offset();
+                $("<div id=\"anchortitlecontainer\"></div>").appendTo($("body")).html(title).css({
+                    top: offset.top - a.outerHeight() - 15,
+                    left: offset.left + a.outerWidth()/2 + 1
+                }).fadeIn(function() {
+                    var pop = $(this);
+                    setTimeout(function() {
+                        pop.remove();
+                    }, pop.text().length * 800);
+                });
+            }, function() {
+                $("#anchortitlecontainer").remove();
+            });
+        });
+    });
+</script>
+
+
+  </div>
+</body>
+</html>
