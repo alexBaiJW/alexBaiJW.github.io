@@ -5,9 +5,9 @@
   
   <link href="/atom.xml" rel="self"/>
   
-  <link href="http://poplar.life/"/>
+  <link href="http://yoursite.com/"/>
   <updated>2019-01-29T03:07:23.530Z</updated>
-  <id>http://poplar.life/</id>
+  <id>http://yoursite.com/</id>
   
   <author>
     <name>alex Bai</name>
@@ -18,8 +18,8 @@
   
   <entry>
     <title>Spark事件监听详解</title>
-    <link href="http://poplar.life/archives/9efd5164.html"/>
-    <id>http://poplar.life/archives/9efd5164.html</id>
+    <link href="http://yoursite.com/archives/9efd5164.html"/>
+    <id>http://yoursite.com/archives/9efd5164.html</id>
     <published>2019-01-29T02:19:00.000Z</published>
     <updated>2019-01-29T03:07:23.530Z</updated>
     
@@ -31,17 +31,17 @@
     
     </summary>
     
-      <category term="Spark" scheme="http://poplar.life/categories/Spark/"/>
+      <category term="Spark" scheme="http://yoursite.com/categories/Spark/"/>
     
     
-      <category term="事件监听" scheme="http://poplar.life/tags/%E4%BA%8B%E4%BB%B6%E7%9B%91%E5%90%AC/"/>
+      <category term="事件监听" scheme="http://yoursite.com/tags/%E4%BA%8B%E4%BB%B6%E7%9B%91%E5%90%AC/"/>
     
   </entry>
   
   <entry>
     <title>Python线程池模拟实现</title>
-    <link href="http://poplar.life/archives/c07a9f32.html"/>
-    <id>http://poplar.life/archives/c07a9f32.html</id>
+    <link href="http://yoursite.com/archives/c07a9f32.html"/>
+    <id>http://yoursite.com/archives/c07a9f32.html</id>
     <published>2019-01-06T13:36:00.000Z</published>
     <updated>2019-01-06T14:00:44.970Z</updated>
     
@@ -53,17 +53,17 @@
     
     </summary>
     
-      <category term="Python" scheme="http://poplar.life/categories/Python/"/>
+      <category term="Python" scheme="http://yoursite.com/categories/Python/"/>
     
     
-      <category term="线程池" scheme="http://poplar.life/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/"/>
+      <category term="线程池" scheme="http://yoursite.com/tags/%E7%BA%BF%E7%A8%8B%E6%B1%A0/"/>
     
   </entry>
   
   <entry>
     <title>Python多线程示例</title>
-    <link href="http://poplar.life/archives/4a17b156.html"/>
-    <id>http://poplar.life/archives/4a17b156.html</id>
+    <link href="http://yoursite.com/archives/4a17b156.html"/>
+    <id>http://yoursite.com/archives/4a17b156.html</id>
     <published>2019-01-06T02:38:00.000Z</published>
     <updated>2019-01-06T13:44:40.170Z</updated>
     
@@ -75,17 +75,17 @@
     
     </summary>
     
-      <category term="Python" scheme="http://poplar.life/categories/Python/"/>
+      <category term="Python" scheme="http://yoursite.com/categories/Python/"/>
     
     
-      <category term="多线程" scheme="http://poplar.life/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
+      <category term="多线程" scheme="http://yoursite.com/tags/%E5%A4%9A%E7%BA%BF%E7%A8%8B/"/>
     
   </entry>
   
   <entry>
     <title>JAX-RS 简化 REST 应用开发</title>
-    <link href="http://poplar.life/archives/e5f30f60.html"/>
-    <id>http://poplar.life/archives/e5f30f60.html</id>
+    <link href="http://yoursite.com/archives/e5f30f60.html"/>
+    <id>http://yoursite.com/archives/e5f30f60.html</id>
     <published>2018-12-25T12:41:00.000Z</published>
     <updated>2019-01-16T14:03:32.489Z</updated>
     
@@ -97,10 +97,10 @@
     
     </summary>
     
-      <category term="REST" scheme="http://poplar.life/categories/REST/"/>
+      <category term="REST" scheme="http://yoursite.com/categories/REST/"/>
     
     
-      <category term="JAX-RS" scheme="http://poplar.life/tags/JAX-RS/"/>
+      <category term="JAX-RS" scheme="http://yoursite.com/tags/JAX-RS/"/>
     
   </entry>
   
